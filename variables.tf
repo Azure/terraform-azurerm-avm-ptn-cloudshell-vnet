@@ -90,7 +90,6 @@ variable "file_share_quota_gb" {
 # Required: Location
 variable "location" {
   type        = string
-  default     = null
   description = "Azure region where the CloudShell resources should be deployed. If not specified, uses the location of the existing VNet."
 }
 
@@ -134,13 +133,13 @@ variable "storage_account_network_bypass" {
 
 variable "storage_account_replication_type" {
   type        = string
-  default     = "LRS"
-  description = "The replication type of the storage account. Valid options are LRS, GRS, RAGRS, ZRS, GZRS, RAGZRS."
+  default     = "ZRS"
+  description = "The replication type of the storage account. Valid options are GRS, RAGRS, ZRS, GZRS, RAGZRS. LRS is not recommended for production."
   nullable    = false
 
   validation {
-    condition     = contains(["LRS", "GRS", "RAGRS", "ZRS", "GZRS", "RAGZRS"], var.storage_account_replication_type)
-    error_message = "storage_account_replication_type must be one of: LRS, GRS, RAGRS, ZRS, GZRS, RAGZRS."
+    condition     = contains(["GRS", "RAGRS", "ZRS", "GZRS", "RAGZRS"], var.storage_account_replication_type)
+    error_message = "storage_account_replication_type must be one of: GRS, RAGRS, ZRS, GZRS, RAGZRS (LRS not allowed per Azure Well-Architected Framework)."
   }
 }
 
@@ -167,7 +166,6 @@ variable "storage_subnet_name" {
 # Optional: Tags
 variable "tags" {
   type        = map(string)
-  default     = {}
+  default     = null
   description = "Map of tags to assign to the CloudShell resources."
-  nullable    = false
 }
