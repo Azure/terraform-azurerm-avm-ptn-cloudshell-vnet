@@ -2,12 +2,6 @@
 # CloudShell VNet Module Outputs
 # =========================================
 
-# Required output per RMFR7
-output "resource_id" {
-  description = "The resource ID of the primary resource (Network Profile) for CloudShell VNet integration."
-  value       = azurerm_network_profile.cloudshell.id
-}
-
 output "container_nsg_id" {
   description = "The resource ID of the Network Security Group for the container subnet."
   value       = azurerm_network_security_group.container.id
@@ -76,6 +70,12 @@ output "relay_subnet_id" {
 output "resource_group_name" {
   description = "The name of the resource group containing the CloudShell resources."
   value       = local.resource_group_name
+}
+
+# Required output per RMFR7
+output "resource_id" {
+  description = "The resource ID of the primary resource (Network Profile) for CloudShell VNet integration."
+  value       = azurerm_network_profile.cloudshell.id
 }
 
 output "storage_account_id" {

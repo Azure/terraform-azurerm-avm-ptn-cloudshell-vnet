@@ -173,6 +173,12 @@ Description: Address prefix for the container subnet (minimum /28 recommended).
 
 Type: `string`
 
+### <a name="input_location"></a> [location](#input\_location)
+
+Description: Azure region where the CloudShell resources should be deployed. If not specified, uses the location of the existing VNet.
+
+Type: `string`
+
 ### <a name="input_relay_namespace_name"></a> [relay\_namespace\_name](#input\_relay\_namespace\_name)
 
 Description: Name of the Azure Relay Namespace for CloudShell communication.
@@ -247,14 +253,6 @@ Type: `number`
 
 Default: `6`
 
-### <a name="input_location"></a> [location](#input\_location)
-
-Description: Azure region where the CloudShell resources should be deployed. If not specified, uses the location of the existing VNet.
-
-Type: `string`
-
-Default: `null`
-
 ### <a name="input_private_dns_zone_id"></a> [private\_dns\_zone\_id](#input\_private\_dns\_zone\_id)
 
 Description: Resource ID of an existing Private DNS Zone for privatelink.servicebus.windows.net. If not provided, DNS zone group will not be configured.
@@ -289,11 +287,11 @@ Default: `[]`
 
 ### <a name="input_storage_account_replication_type"></a> [storage\_account\_replication\_type](#input\_storage\_account\_replication\_type)
 
-Description: The replication type of the storage account. Valid options are LRS, GRS, RAGRS, ZRS, GZRS, RAGZRS.
+Description: The replication type of the storage account. Valid options are GRS, RAGRS, ZRS, GZRS, RAGZRS. LRS is not recommended for production.
 
 Type: `string`
 
-Default: `"LRS"`
+Default: `"ZRS"`
 
 ### <a name="input_storage_account_tier"></a> [storage\_account\_tier](#input\_storage\_account\_tier)
 
@@ -317,7 +315,7 @@ Description: Map of tags to assign to the CloudShell resources.
 
 Type: `map(string)`
 
-Default: `{}`
+Default: `null`
 
 ## Outputs
 
@@ -378,6 +376,10 @@ Description: The resource ID of the relay subnet for private endpoints.
 ### <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name)
 
 Description: The name of the resource group containing the CloudShell resources.
+
+### <a name="output_resource_id"></a> [resource\_id](#output\_resource\_id)
+
+Description: The resource ID of the primary resource (Network Profile) for CloudShell VNet integration.
 
 ### <a name="output_storage_account_id"></a> [storage\_account\_id](#output\_storage\_account\_id)
 

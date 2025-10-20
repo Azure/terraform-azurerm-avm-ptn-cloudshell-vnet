@@ -4,6 +4,13 @@ variable "container_subnet_address_prefix" {
   nullable    = false
 }
 
+# Required: Location
+variable "location" {
+  type        = string
+  description = "Azure region where the CloudShell resources should be deployed. If not specified, uses the location of the existing VNet."
+  nullable    = false
+}
+
 # Required: Relay Namespace Configuration
 variable "relay_namespace_name" {
   type        = string
@@ -85,12 +92,6 @@ variable "file_share_quota_gb" {
     condition     = var.file_share_quota_gb >= 6
     error_message = "File share quota must be at least 6 GB for CloudShell."
   }
-}
-
-# Required: Location
-variable "location" {
-  type        = string
-  description = "Azure region where the CloudShell resources should be deployed. If not specified, uses the location of the existing VNet."
 }
 
 # Optional: Existing Private DNS Zone

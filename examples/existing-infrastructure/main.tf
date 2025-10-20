@@ -26,7 +26,7 @@ provider "azurerm" {
 ## Section to provide a random Azure region
 module "regions" {
   source  = "Azure/avm-utl-regions/azurerm"
-  version = "~> 0.1"
+  version = "0.9.0"
 }
 
 resource "random_integer" "region_index" {
@@ -38,7 +38,7 @@ resource "random_integer" "region_index" {
 # Naming module for unique names
 module "naming" {
   source  = "Azure/naming/azurerm"
-  version = "~> 0.3"
+  version = "0.4.2"
 }
 
 # Create "existing" Resource Group (simulating pre-existing infrastructure)
@@ -95,6 +95,8 @@ module "cloudshell_vnet" {
   # Subnet Configuration
   # These address ranges are available within the 10.0.0.0/16 VNet created above
   container_subnet_address_prefix = "10.0.1.0/28"
+  # Location (inherited from VNet)
+  location = data.azurerm_virtual_network.existing.location
   # Relay Namespace Configuration (unique name required)
   relay_namespace_name        = "cloudshell-relay-${random_string.suffix.result}"
   relay_subnet_address_prefix = "10.0.1.16/28"
@@ -106,8 +108,6 @@ module "cloudshell_vnet" {
   virtual_network_resource_group_name = data.azurerm_virtual_network.existing.resource_group_name
   # Enable telemetry (AVM requirement)
   enable_telemetry = var.enable_telemetry
-  # Location (inherited from VNet)
-  location = data.azurerm_virtual_network.existing.location
   # Tags
   tags = {
     Environment = "Example"

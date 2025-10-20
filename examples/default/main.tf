@@ -21,7 +21,7 @@ provider "azurerm" {
 # This allows us to randomize the region for the resource group.
 module "regions" {
   source  = "Azure/avm-utl-regions/azurerm"
-  version = "~> 0.1"
+  version = "0.9.0"
 }
 
 # This allows us to randomize the region for the resource group.
@@ -34,7 +34,7 @@ resource "random_integer" "region_index" {
 # This ensures we have unique CAF compliant names for our resources.
 module "naming" {
   source  = "Azure/naming/azurerm"
-  version = "~> 0.3"
+  version = "0.4.2"
 }
 
 # Create a resource group for the example VNet
@@ -65,6 +65,8 @@ module "cloudshell_vnet" {
   source = "../../"
 
   container_subnet_address_prefix = "10.0.1.0/28"
+  # Location (will use VNet location if not specified)
+  location = azurerm_resource_group.this.location
   # Relay Namespace
   relay_namespace_name        = "cloudshell-relay-${random_string.storage_suffix.result}"
   relay_subnet_address_prefix = "10.0.1.16/28"
@@ -80,8 +82,6 @@ module "cloudshell_vnet" {
   enable_telemetry    = var.enable_telemetry
   file_share_name     = "cloudshell"
   file_share_quota_gb = 6
-  # Location (will use VNet location if not specified)
-  location = azurerm_resource_group.this.location
   # Private Endpoint
   private_endpoint_name = "cloudshell-relay-pe"
   relay_subnet_name     = "cloudshell-relay"
