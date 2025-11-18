@@ -1,6 +1,3 @@
-data "azapi_client_config" "telemetry" {
-  count = var.enable_telemetry ? 1 : 0
-}
 
 data "modtm_module_source" "telemetry" {
   count = var.enable_telemetry ? 1 : 0
@@ -29,6 +26,10 @@ resource "modtm_telemetry" "telemetry" {
     random_id       = one(random_uuid.telemetry).result
   }, { location = local.main_location })
 }
+data "azapi_client_config" "telemetry" {
+  count = var.enable_telemetry ? 1 : 0
+}
+
 locals {
   avm_azapi_headers = !var.enable_telemetry ? {} : (local.fork_avm ? {
     fork_avm  = "true"
