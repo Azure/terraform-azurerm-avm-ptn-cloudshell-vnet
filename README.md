@@ -145,17 +145,14 @@ The following requirements are needed by this module:
 
 The following resources are used by this module:
 
-- [azapi_resource.container_subnet](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
-- [azapi_resource.relay_subnet](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
-- [azapi_resource.storage_subnet](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
 - [azurerm_network_profile.cloudshell](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_profile) (resource)
-- [azurerm_network_security_group.container](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_group) (resource)
-- [azurerm_network_security_group.relay](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_group) (resource)
-- [azurerm_network_security_group.storage](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_group) (resource)
-- [azurerm_private_endpoint.relay](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint) (resource)
 - [azurerm_relay_namespace.cloudshell](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/relay_namespace) (resource)
-- [azurerm_storage_account.cloudshell](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account) (resource)
-- [azurerm_storage_share.cloudshell](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_share) (resource)
+- [azurerm_subnet.container](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet) (resource)
+- [azurerm_subnet.relay](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet) (resource)
+- [azurerm_subnet.storage](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet) (resource)
+- [azurerm_subnet_network_security_group_association.container](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet_network_security_group_association) (resource)
+- [azurerm_subnet_network_security_group_association.relay](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet_network_security_group_association) (resource)
+- [azurerm_subnet_network_security_group_association.storage](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet_network_security_group_association) (resource)
 - [modtm_telemetry.telemetry](https://registry.terraform.io/providers/azure/modtm/latest/docs/resources/telemetry) (resource)
 - [random_uuid.telemetry](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/uuid) (resource)
 - [azapi_client_config.telemetry](https://registry.terraform.io/providers/Azure/azapi/latest/docs/data-sources/client_config) (data source)
@@ -407,7 +404,37 @@ Description: The resource ID of the Virtual Network.
 
 ## Modules
 
-No modules.
+The following Modules are called:
+
+### <a name="module_nsg_container"></a> [nsg\_container](#module\_nsg\_container)
+
+Source: Azure/avm-res-network-networksecuritygroup/azurerm
+
+Version: ~> 0.3
+
+### <a name="module_nsg_relay"></a> [nsg\_relay](#module\_nsg\_relay)
+
+Source: Azure/avm-res-network-networksecuritygroup/azurerm
+
+Version: ~> 0.3
+
+### <a name="module_nsg_storage"></a> [nsg\_storage](#module\_nsg\_storage)
+
+Source: Azure/avm-res-network-networksecuritygroup/azurerm
+
+Version: ~> 0.3
+
+### <a name="module_private_endpoint"></a> [private\_endpoint](#module\_private\_endpoint)
+
+Source: Azure/avm-res-network-privateendpoint/azurerm
+
+Version: ~> 0.1
+
+### <a name="module_storage_account"></a> [storage\_account](#module\_storage\_account)
+
+Source: Azure/avm-res-storage-storageaccount/azurerm
+
+Version: ~> 0.4
 
 <!-- markdownlint-disable-next-line MD041 -->
 ## Data Collection
