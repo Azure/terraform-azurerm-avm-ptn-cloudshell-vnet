@@ -1,180 +1,147 @@
 # =========================================
-# Network Security Groups
+# Network Security Groups (using AVM module)
 # =========================================
 
 # NSG for Container Subnet
-resource "azurerm_network_security_group" "container" {
+module "nsg_container" {
+  source  = "Azure/avm-res-network-networksecuritygroup/azurerm"
+  version = "~> 0.3"
+
+  enable_telemetry    = var.enable_telemetry
   location            = local.location
   name                = "nsg-${var.container_subnet_name}"
   resource_group_name = local.resource_group_name
   tags                = local.tags
-
-  lifecycle {
-    ignore_changes = [tags]
-  }
 }
 
 # NSG for Relay Subnet
-resource "azurerm_network_security_group" "relay" {
+module "nsg_relay" {
+  source  = "Azure/avm-res-network-networksecuritygroup/azurerm"
+  version = "~> 0.3"
+
+  enable_telemetry    = var.enable_telemetry
   location            = local.location
   name                = "nsg-${var.relay_subnet_name}"
   resource_group_name = local.resource_group_name
   tags                = local.tags
-
-  lifecycle {
-    ignore_changes = [tags]
-  }
 }
 
 # NSG for Storage Subnet
-resource "azurerm_network_security_group" "storage" {
+module "nsg_storage" {
+  source  = "Azure/avm-res-network-networksecuritygroup/azurerm"
+  version = "~> 0.3"
+
+  enable_telemetry    = var.enable_telemetry
   location            = local.location
   name                = "nsg-${var.storage_subnet_name}"
   resource_group_name = local.resource_group_name
   tags                = local.tags
-
-  lifecycle {
-    ignore_changes = [tags]
-  }
 }
 
 # =========================================
-# Subnets (using azapi for advanced features)
+# Subnets (using azurerm provider)
 # =========================================
 
 # Container Subnet with Container Instance Delegation
-resource "azapi_resource" "container_subnet" {
-  name      = var.container_subnet_name
-  parent_id = data.azurerm_virtual_network.vnet.id
-  type      = "Microsoft.Network/virtualNetworks/subnets@2024-05-01"
-  body = {
-    properties = {
-      addressPrefix = var.container_subnet_address_prefix
-      delegations = [
-        {
-          name = "CloudShellDelegation"
-          properties = {
-            serviceName = "Microsoft.ContainerInstance/containerGroups"
-          }
-        }
-      ]
-      networkSecurityGroup = {
-        id = azurerm_network_security_group.container.id
-      }
-      serviceEndpoints = [
-        {
-          locations = [
-            local.location
-          ]
-          service = "Microsoft.Storage"
-        }
-      ]
+resource "azurerm_subnet" "container" {
+  name                 = var.container_subnet_name
+  resource_group_name  = data.azurerm_virtual_network.vnet.resource_group_name
+  virtual_network_name = data.azurerm_virtual_network.vnet.name
+  address_prefixes     = [var.container_subnet_address_prefix]
+
+  delegation {
+    name = "CloudShellDelegation"
+    service_delegation {
+      name = "Microsoft.ContainerInstance/containerGroups"
     }
   }
-  create_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
-  delete_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
-  locks = [
-    data.azurerm_virtual_network.vnet.id
-  ]
-  read_headers           = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
-  response_export_values = ["*"]
-  update_headers         = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+
+  service_endpoints = ["Microsoft.Storage"]
+}
+
+# Associate NSG with Container Subnet
+resource "azurerm_subnet_network_security_group_association" "container" {
+  subnet_id                 = azurerm_subnet.container.id
+  network_security_group_id = module.nsg_container.resource_id
 }
 
 # Relay Subnet for Private Endpoint
-resource "azapi_resource" "relay_subnet" {
-  name      = var.relay_subnet_name
-  parent_id = data.azurerm_virtual_network.vnet.id
-  type      = "Microsoft.Network/virtualNetworks/subnets@2024-05-01"
-  body = {
-    properties = {
-      addressPrefix = var.relay_subnet_address_prefix
-      networkSecurityGroup = {
-        id = azurerm_network_security_group.relay.id
-      }
-      privateEndpointNetworkPolicies    = "Disabled"
-      privateLinkServiceNetworkPolicies = "Enabled"
-    }
-  }
-  create_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
-  delete_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
-  locks = [
-    data.azurerm_virtual_network.vnet.id
-  ]
-  read_headers           = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
-  response_export_values = ["*"]
-  update_headers         = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+resource "azurerm_subnet" "relay" {
+  name                 = var.relay_subnet_name
+  resource_group_name  = data.azurerm_virtual_network.vnet.resource_group_name
+  virtual_network_name = data.azurerm_virtual_network.vnet.name
+  address_prefixes     = [var.relay_subnet_address_prefix]
+
+  private_endpoint_network_policies             = "Disabled"
+  private_link_service_network_policies_enabled = true
+}
+
+# Associate NSG with Relay Subnet
+resource "azurerm_subnet_network_security_group_association" "relay" {
+  subnet_id                 = azurerm_subnet.relay.id
+  network_security_group_id = module.nsg_relay.resource_id
 }
 
 # Storage Subnet with Storage Service Endpoint
-resource "azapi_resource" "storage_subnet" {
-  name      = var.storage_subnet_name
-  parent_id = data.azurerm_virtual_network.vnet.id
-  type      = "Microsoft.Network/virtualNetworks/subnets@2024-05-01"
-  body = {
-    properties = {
-      addressPrefix = var.storage_subnet_address_prefix
-      networkSecurityGroup = {
-        id = azurerm_network_security_group.storage.id
-      }
-      serviceEndpoints = [
-        {
-          locations = [
-            local.location
-          ]
-          service = "Microsoft.Storage"
-        }
-      ]
-    }
-  }
-  create_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
-  delete_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
-  locks = [
-    data.azurerm_virtual_network.vnet.id
-  ]
-  read_headers           = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
-  response_export_values = ["*"]
-  update_headers         = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+resource "azurerm_subnet" "storage" {
+  name                 = var.storage_subnet_name
+  resource_group_name  = data.azurerm_virtual_network.vnet.resource_group_name
+  virtual_network_name = data.azurerm_virtual_network.vnet.name
+  address_prefixes     = [var.storage_subnet_address_prefix]
+
+  service_endpoints = ["Microsoft.Storage"]
+}
+
+# Associate NSG with Storage Subnet
+resource "azurerm_subnet_network_security_group_association" "storage" {
+  subnet_id                 = azurerm_subnet.storage.id
+  network_security_group_id = module.nsg_storage.resource_id
 }
 
 # =========================================
-# Storage Account for CloudShell
+# Storage Account for CloudShell (using AVM module)
 # =========================================
 
-resource "azurerm_storage_account" "cloudshell" {
-  account_replication_type = var.storage_account_replication_type
-  account_tier             = var.storage_account_tier
+module "storage_account" {
+  source  = "Azure/avm-res-storage-storageaccount/azurerm"
+  version = "~> 0.4"
+
+  enable_telemetry         = var.enable_telemetry
   location                 = local.location
   name                     = lower(var.storage_account_name)
   resource_group_name      = local.resource_group_name
+  account_replication_type = var.storage_account_replication_type
+  account_tier             = var.storage_account_tier
   access_tier              = "Cool"
   account_kind             = "StorageV2"
+
   # Security compliance requirements
+  shared_access_key_enabled  = true
   https_traffic_only_enabled = true
   min_tls_version            = "TLS1_2"
-  tags                       = local.tags
+
+  tags = local.tags
 
   # Network rules - deny by default, allow from CloudShell subnets
-  network_rules {
-    default_action = "Deny"
+  network_rules = {
     bypass         = var.storage_account_network_bypass
+    default_action = "Deny"
     virtual_network_subnet_ids = [
-      azapi_resource.container_subnet.id,
-      azapi_resource.storage_subnet.id
+      azurerm_subnet.container.id,
+      azurerm_subnet.storage.id
     ]
   }
 
-  lifecycle {
-    ignore_changes = [tags]
+  # File share for CloudShell
+  shares = {
+    cloudshell = {
+      name        = var.file_share_name
+      quota       = var.file_share_quota_gb
+      access_tier = "Cool"
+    }
   }
 }
 
-# File Share for CloudShell user data
-resource "azurerm_storage_share" "cloudshell" {
-  name               = var.file_share_name
-  quota              = var.file_share_quota_gb
-  storage_account_id = azurerm_storage_account.cloudshell.id
-}
 
 # =========================================
 # Azure Relay Namespace
@@ -193,43 +160,30 @@ resource "azurerm_relay_namespace" "cloudshell" {
 }
 
 # =========================================
-# Private Endpoint for Relay Namespace
+# Private Endpoint for Relay Namespace (using AVM module)
 # =========================================
 
-resource "azurerm_private_endpoint" "relay" {
-  location            = local.location
-  name                = var.private_endpoint_name
-  resource_group_name = local.resource_group_name
-  subnet_id           = azapi_resource.relay_subnet.id
-  tags                = local.tags
+module "private_endpoint" {
+  source  = "Azure/avm-res-network-privateendpoint/azurerm"
+  version = "~> 0.1"
 
-  private_service_connection {
-    is_manual_connection           = false
-    name                           = var.private_endpoint_name
-    private_connection_resource_id = azurerm_relay_namespace.cloudshell.id
-    subresource_names              = ["namespace"]
-  }
+  enable_telemetry               = var.enable_telemetry
+  location                       = local.location
+  name                           = var.private_endpoint_name
+  resource_group_name            = local.resource_group_name
+  subnet_resource_id             = azurerm_subnet.relay.id
+  private_connection_resource_id = azurerm_relay_namespace.cloudshell.id
+  subresource_names              = ["namespace"]
+  network_interface_name         = "${var.private_endpoint_name}-nic"
+  tags                           = local.tags
+
   # Optional: Private DNS Zone Group (if DNS zone ID is provided)
-  dynamic "private_dns_zone_group" {
-    for_each = var.private_dns_zone_id != null ? [1] : []
-
-    content {
-      name                 = "default"
-      private_dns_zone_ids = [var.private_dns_zone_id]
-    }
-  }
+  private_dns_zone_resource_ids = var.private_dns_zone_id != null ? [var.private_dns_zone_id] : []
 
   depends_on = [
-    azapi_resource.relay_subnet,
+    azurerm_subnet.relay,
     azurerm_relay_namespace.cloudshell
   ]
-
-  lifecycle {
-    ignore_changes = [
-      private_dns_zone_group, # May be managed by Azure Policy
-      tags
-    ]
-  }
 }
 
 # =========================================
@@ -247,11 +201,11 @@ resource "azurerm_network_profile" "cloudshell" {
 
     ip_configuration {
       name      = "ipconfig-${var.container_subnet_name}"
-      subnet_id = azapi_resource.container_subnet.id
+      subnet_id = azurerm_subnet.container.id
     }
   }
 
-  depends_on = [azapi_resource.container_subnet]
+  depends_on = [azurerm_subnet.container]
 
   lifecycle {
     ignore_changes = [tags]
