@@ -72,10 +72,20 @@ output "resource_group_name" {
   value       = local.resource_group_name
 }
 
-# Required output per RMFR7
+# Required output per RMFR7 and TFFR2
 output "resource_id" {
   description = "The resource ID of the primary resource (Network Profile) for CloudShell VNet integration."
   value       = azurerm_network_profile.cloudshell.id
+}
+
+output "resource" {
+  description = "The primary resource (Network Profile) for CloudShell VNet integration."
+  value       = azurerm_network_profile.cloudshell
+}
+
+output "name" {
+  description = "The name of the primary resource (Network Profile)."
+  value       = azurerm_network_profile.cloudshell.name
 }
 
 output "storage_account_id" {
