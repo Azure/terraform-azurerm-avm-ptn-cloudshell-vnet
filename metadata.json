@@ -1,0 +1,10 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Azure/azure-verified-modules-tools/main/src/Avm.Authoring/Resources/Schemas/v1/avm-module-metadata.schema.json",
+  "moduleDisplayName": "Azure Cloud Shell in a Virtual Network",
+  "moduleDescription": "AVM Pattern Module for Azure Cloud Shell in a Virtual Network",
+  "canonicalType": "cloudshell-vnet",
+  "owners": [
+    "travishankins"
+  ],
+  "telemetryIdPrefix": "46d3xtrf.ptn.69930d4"
+}
