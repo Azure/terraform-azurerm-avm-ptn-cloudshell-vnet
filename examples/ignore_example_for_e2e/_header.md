@@ -1,3 +1,3 @@
-# Ignored example for e2e tests
+# Ignored virtual network starter example
 
-This example will not be run as an e2e test as it has the .e2eignore file in the same directory.
+This example creates the starter virtual network, not Cloud Shell. Its existing end-to-end test exclusion is retained.
