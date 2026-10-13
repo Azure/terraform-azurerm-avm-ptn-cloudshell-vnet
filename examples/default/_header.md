@@ -1,3 +1,3 @@
-# Default example
+# Generic virtual network starter example
 
-This deploys the module in its simplest form.
+This example creates the starter virtual network. It does not deploy Cloud Shell.
